@@ -3,14 +3,13 @@
 <suite name="All Test Suite">
     <parameter name="username" value="nigeria_tenant_admin"></parameter>
     <parameter name="password" value="TnvLOl54WxR75vylop2A"></parameter>
-    <parameter name="path" value="D:\TechnoStudy\Selenium\ChromeDriver\chromedriver.exe"></parameter>
+    <parameter name="path" value="/Users/technostudy/Selenium/ChromeDriver/chromedriver"></parameter>
     <test verbose="2" preserve-order="true" name="D:/Project/BasqarTestSuite/src/test/resources">
         <parameter name="firstName" value="Michel"></parameter>
         <parameter name="lastName" value="Jackson"></parameter>
         <parameter name="gender" value="Male"></parameter>
         <classes>
             <class name="Group1.TestCase1"></class>
-            <class name="Group1.TestCase2"></class>
         </classes>
     </test>
 </suite>
