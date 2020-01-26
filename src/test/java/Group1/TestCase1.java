@@ -111,9 +111,18 @@ public class TestCase1 {
         // clicking relative info
         driver.findElement(By.cssSelector("app-registration-edit .mat-tab-label:nth-child(3)")).click();
         // click on reprresentative
-        driver.findElement(By.cssSelector("mat-select[aria-label=\"Representative\"]")).click();
-        wait.until( ExpectedConditions.elementToBeClickable( By.cssSelector(".cdk-overlay-pane mat-option:first-child") ) );
+        visible = false;
+        while(!visible){
+            driver.findElement(By.cssSelector("mat-select[aria-label=\"Representative\"]")).click();
+            try {
+                waitDropdownToBeVisible.until( ExpectedConditions.visibilityOfElementLocated( By.cssSelector(".cdk-overlay-pane mat-option:first-child") ) );
+                visible = true;
+            } catch(Exception e) {
+                // cannot find it within one second, try again!
+            }
+        }
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
+
         // filling out the lastname and firstname
         driver.findElement(By.cssSelector("registration-form-relative-info input[placeholder='Last Name']")).sendKeys("Adams");
         driver.findElement(By.cssSelector("registration-form-relative-info input[placeholder='First Name']")).sendKeys("Mary");
