@@ -35,19 +35,17 @@ public class TestCase1 {
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         driver.findElement(By.xpath("//a[@class='cc-btn cc-dismiss']")).click();
 
+        // Navigate to Approvement
+        driver.findElement(By.cssSelector("fuse-navigation .group-items > .nav-item:nth-child(2)")).click();
+        driver.findElement(By.cssSelector("fuse-navigation .group-items > .nav-item:nth-child(2) > .children > .nav-item:nth-child(2)")).click();
+
     }
 
     @Parameters({"firstName", "lastName", "gender"})
     @Test
     public void createPreRegistration(String name, String lastName, String gender)  {
-
-        // Navigate to Approvement
-        driver.findElement(By.cssSelector("fuse-navigation .group-items > .nav-item:nth-child(2)")).click();
-        driver.findElement(By.cssSelector("fuse-navigation .group-items > .nav-item:nth-child(2) > .children > .nav-item:nth-child(2)")).click();
-
         // Plus icon
         wait.until( ExpectedConditions.visibilityOfElementLocated( By.cssSelector("app-registration-approvement ms-add-button") ) );
-
         driver.findElement(By.cssSelector("app-registration-approvement ms-add-button")).click();
 
         boolean visible =false;
@@ -83,16 +81,11 @@ public class TestCase1 {
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
 
         // Clicking on information page
-
-        // clicking information
         driver.findElement(By.cssSelector("app-registration-edit .mat-tab-label:nth-child(2)")).click();
-
         // firstname
         driver.findElement(By.cssSelector("input[formcontrolname='firstName']")).sendKeys(name);
-
         // lastname
         driver.findElement(By.cssSelector("input[formcontrolname='lastName']")).sendKeys(lastName);
-
         // gender click
         driver.findElement(By.cssSelector("mat-select[formcontrolname='gender']")).click();
         if(gender.equals( "Male" )) {
@@ -102,73 +95,51 @@ public class TestCase1 {
         }
 
         String birth = "09061988";
-
         driver.findElement(By.cssSelector("input[placeholder='Date of Birth']")).sendKeys(birth);
         driver.findElement(By.cssSelector("input[placeholder='Personal ID']")).sendKeys("12346");
-
-
-
         // click on citizenship
         driver.findElement(By.cssSelector("mat-select[aria-label=\"Citizenship\"]")).click();
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
-
         // click on nationality
         driver.findElement(By.cssSelector("mat-select[aria-label='Nationality']")).click();
         wait.until( ExpectedConditions.elementToBeClickable( By.cssSelector(".cdk-overlay-pane mat-option:first-child") ) );
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
-
 
         String email = "tttttt@gmail.com";
         driver.findElement(By.cssSelector("input[placeholder='Email']")).sendKeys(email);
 
         // clicking relative info
         driver.findElement(By.cssSelector("app-registration-edit .mat-tab-label:nth-child(3)")).click();
-
-//        wait.until(ExpectedConditions.invisibilityOfElementLocated(
-//                By.xpath("(//div[@class='mat-tab-label mat-ripple ng-star-inserted'])[2]")));
-
         // click on reprresentative
         driver.findElement(By.cssSelector("mat-select[aria-label=\"Representative\"]")).click();
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
-//        wait.until( ExpectedConditions.invisibilityOfElementLocated( By.cssSelector(".cdk-overlay-pane") ) );
-
         // filling out the lastname and firstname
-
         driver.findElement(By.cssSelector("registration-form-relative-info input[placeholder='Last Name']")).sendKeys("Adams");
         driver.findElement(By.cssSelector("registration-form-relative-info input[placeholder='First Name']")).sendKeys("Mary");
-
         // mobile phone
-
         driver.findElement(By.cssSelector("input[placeholder='Mobile Phone']")).sendKeys("12345567");
-
         // click on Country
         driver.findElement(By.cssSelector("mat-select[aria-label='Country']")).click();
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
-
-//		// click on Save button
-//
-//        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector("mat-option:nth-child(5)")));
-
+		// click on Save button
         driver.findElement(By.xpath("//ms-save-button[@caption='GENERAL.BUTTTON.SAVE']")).click();
 
         try {
-            wait.until( ExpectedConditions.visibilityOfElementLocated( By.cssSelector("div[aria-label=\"Pre-Registration successfully created\"]") ) );
+            wait.until( ExpectedConditions.visibilityOfElementLocated( By.cssSelector("div[aria-label=\"Pre-registration successfully created\"]") ) );
         } catch (Exception e){
-            System.out.println( " => Create Failure!");
+            Assert.fail( "Creation failure" );
         }
-
         driver.findElement(By.cssSelector("mat-toolbar [data-icon='arrow-left']")).click();
     }
 
     @Parameters({"firstName", "lastName"})
-    @Test(dependsOnMethods = "createPreRegistration")
+    @Test(dependsOnMethods = "testingGender")
     public void verifying(String name, String lastName) {
         wait.until( ExpectedConditions.numberOfElementsToBeMoreThan( By.cssSelector( "tbody tr" ), 0 ) );
         String expectedname = name + " " + lastName;
 
         List<WebElement> names = driver.findElements(By.xpath("//tbody//tr//td[3]"));
         Assert.assertNotEquals( names, null );
-//        Assert.assertNotEquals( names.size(), 0 );
 
         boolean found = false;
         for (int i = 0; i < names.size(); i++) {
@@ -182,7 +153,7 @@ public class TestCase1 {
     }
 
     @Parameters({"firstName", "lastName"})
-    @Test(dependsOnMethods = "createPreRegistration")
+    @Test(dependsOnMethods = "verifying")
     public void deleting(String name, String lastName) {
         wait.until( ExpectedConditions.numberOfElementsToBeMoreThan( By.cssSelector( "tbody tr" ), 0 ) );
         String expectedname = name + "  " + lastName;
@@ -195,7 +166,7 @@ public class TestCase1 {
         try {
             wait.until( ExpectedConditions.visibilityOfElementLocated( By.cssSelector("div[aria-label='"+expectedname+" successfully deleted']") ) );
         } catch (Exception e){
-            System.out.println( " => Delete Failure!");
+            Assert.fail( "Delete Failure!" );
         }
     }
 
@@ -205,7 +176,6 @@ public class TestCase1 {
         wait.until( ExpectedConditions.numberOfElementsToBeMoreThan( By.cssSelector( "tbody tr" ), 0 ) );
         List<WebElement> genders = driver.findElements(By.xpath("//tbody//tr//td[8]"));
         Assert.assertNotEquals( genders, null );
-//        Assert.assertNotEquals( genders.size(), 0 );
 
         boolean found = false;
         for (int i = 0; i < genders.size(); i++) {
@@ -218,6 +188,6 @@ public class TestCase1 {
     }
     @AfterClass
     public void quit(){
-//        driver.quit();
+        driver.quit();
     }
 }
