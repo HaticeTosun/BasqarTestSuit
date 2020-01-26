@@ -112,6 +112,7 @@ public class TestCase1 {
         driver.findElement(By.cssSelector("app-registration-edit .mat-tab-label:nth-child(3)")).click();
         // click on reprresentative
         driver.findElement(By.cssSelector("mat-select[aria-label=\"Representative\"]")).click();
+        wait.until( ExpectedConditions.elementToBeClickable( By.cssSelector(".cdk-overlay-pane mat-option:first-child") ) );
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
         // filling out the lastname and firstname
         driver.findElement(By.cssSelector("registration-form-relative-info input[placeholder='Last Name']")).sendKeys("Adams");
