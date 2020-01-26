@@ -7,7 +7,6 @@
     <test verbose="2" preserve-order="true" name="D:/Project/BasqarTestSuite/src/test/resources">
         <classes>
             <class name="Group1.TestCase1"></class>
-            <class name="Group1.TestCase2"></class>
             <class name="Group2.TestCase2"></class>
             <class name="Group3.TestCase3"></class>
             <class name="Group4.TestCase4"></class>
