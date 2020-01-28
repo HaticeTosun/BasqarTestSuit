@@ -7,19 +7,33 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
+import java.sql.*;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class TestCase1 {
 
     WebDriver driver;
     private WebDriverWait wait;
+    private Statement statement;
+    private Connection connection;
 
+    @BeforeClass
+    public void connect() throws SQLException {
+        String url = "jdbc:mysql://database-techno.c771qxmldhez.us-east-2.rds.amazonaws.com:3306/daulet2030_studens_database";
+        String user = "daulet2030";
+        String password = "daulet2030@gmail.com";
+        connection = DriverManager.getConnection( url, user, password );
+        statement = connection.createStatement();
+    }
+
+    @AfterClass
+    public void disconnect() throws SQLException {
+        connection.close();
+    }
     @BeforeClass
     @Parameters({"username", "password", "path"})
     public void setup(String username, String password,String path) {
@@ -41,9 +55,18 @@ public class TestCase1 {
 
     }
 
-    @Parameters({"firstName", "lastName", "gender"})
-    @Test
-    public void createPreRegistration(String name, String lastName, String gender)  {
+    @Test(dataProvider = "students")
+    public void createPreRegistration(String id) throws SQLException, InterruptedException {
+        //TODO get name, lastname and gender from students table by id from dataprovider;
+        PreparedStatement resultStatement = connection.prepareStatement( "select firstname, lastname, gender from preregistrations " +
+                "where id = ?" );
+        resultStatement.setString( 1, id );
+        ResultSet rs = resultStatement.executeQuery();
+        rs.first();
+        String name = rs.getString( "firstname" );
+        String lastName = rs.getString( "lastname" );
+        String gender = rs.getString( "gender" );
+
         // Plus icon
         wait.until( ExpectedConditions.visibilityOfElementLocated( By.cssSelector("app-registration-approvement ms-add-button") ) );
         driver.findElement(By.cssSelector("app-registration-approvement ms-add-button")).click();
@@ -102,7 +125,8 @@ public class TestCase1 {
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
         // click on nationality
         driver.findElement(By.cssSelector("mat-select[aria-label='Nationality']")).click();
-        wait.until( ExpectedConditions.elementToBeClickable( By.cssSelector(".cdk-overlay-pane mat-option:first-child") ) );
+        Thread.sleep(200);
+//        wait.until( ExpectedConditions.elementToBeClickable( By.cssSelector(".cdk-overlay-pane mat-option:first-child") ) );
         driver.findElement(By.cssSelector(".cdk-overlay-pane mat-option:first-child")).click();
 
         String email = "tttttt@gmail.com";
@@ -142,9 +166,17 @@ public class TestCase1 {
         driver.findElement(By.cssSelector("mat-toolbar [data-icon='arrow-left']")).click();
     }
 
-    @Parameters({"firstName", "lastName"})
-    @Test(dependsOnMethods = "testingGender")
-    public void verifying(String name, String lastName) {
+    @Test(dependsOnMethods = "testingGender", dataProvider = "randomstudents")
+    public void verifying(String id) throws SQLException {
+        //TODO get name and lastname from students table by id from dataprovider;
+        PreparedStatement resultStatement = connection.prepareStatement( "select firstname, lastname, gender from preregistrations " +
+                "where id = ?" );
+        resultStatement.setString( 1, id );
+        ResultSet rs = resultStatement.executeQuery();
+        rs.first();
+        String name = rs.getString( "firstname" );
+        String lastName = rs.getString( "lastname" );
+        String gender = rs.getString( "gender" );
         wait.until( ExpectedConditions.numberOfElementsToBeMoreThan( By.cssSelector( "tbody tr" ), 0 ) );
         String expectedname = name + " " + lastName;
 
@@ -162,9 +194,17 @@ public class TestCase1 {
         Assert.assertTrue( found );
     }
 
-    @Parameters({"firstName", "lastName"})
-    @Test(dependsOnMethods = "verifying")
-    public void deleting(String name, String lastName) {
+    @Test(dependsOnMethods = "verifying", dataProvider = "randomstudents")
+    public void deleting(String id) throws SQLException {
+        //TODO get name and lastname from students table by id from dataprovider;
+        PreparedStatement resultStatement = connection.prepareStatement( "select firstname, lastname, gender from preregistrations " +
+                "where id = ?" );
+        resultStatement.setString( 1, id );
+        ResultSet rs = resultStatement.executeQuery();
+        rs.first();
+        String name = rs.getString( "firstname" );
+        String lastName = rs.getString( "lastname" );
+        String gender = rs.getString( "gender" );
         wait.until( ExpectedConditions.numberOfElementsToBeMoreThan( By.cssSelector( "tbody tr" ), 0 ) );
         String expectedname = name + "  " + lastName;
 
@@ -180,16 +220,24 @@ public class TestCase1 {
         }
     }
 
-    @Parameters({"gender"})
-    @Test(dependsOnMethods = "createPreRegistration")
-    public void testingGender(String myGender) {
+    @Test(dependsOnMethods = "createPreRegistration", dataProvider = "randomstudents")
+    public void testingGender(String id) throws SQLException {
+        //TODO get gender from students table by id from dataprovider;
+        PreparedStatement resultStatement = connection.prepareStatement( "select firstname, lastname, gender from preregistrations " +
+                "where id = ?" );
+        resultStatement.setString( 1, id );
+        ResultSet rs = resultStatement.executeQuery();
+        rs.first();
+        String name = rs.getString( "firstname" );
+        String lastName = rs.getString( "lastname" );
+        String gender = rs.getString( "gender" );
         wait.until( ExpectedConditions.numberOfElementsToBeMoreThan( By.cssSelector( "tbody tr" ), 0 ) );
         List<WebElement> genders = driver.findElements(By.xpath("//tbody//tr//td[8]"));
         Assert.assertNotEquals( genders, null );
 
         boolean found = false;
         for (int i = 0; i < genders.size(); i++) {
-            if (genders.get( i ).getText().trim().equals(myGender)) {
+            if (genders.get( i ).getText().trim().equals(gender)) {
                 found = true;
                 break;
             }
@@ -199,5 +247,16 @@ public class TestCase1 {
     @AfterClass
     public void quit(){
         driver.quit();
+    }
+
+    //TODO create a dataprovider that provides 3 ids from students table
+
+    @DataProvider(name = "students")
+    public Object[][] studentsData(){
+        Object[][] result = new Object[3][1];
+        for (int i = 0; i < 3; i++) {
+            result[i][0] = String.valueOf(i+1);
+        }
+        return result;
     }
 }
